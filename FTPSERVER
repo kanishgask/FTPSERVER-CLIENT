@@ -1,0 +1,36 @@
+import java.io.*;
+import java.net.*;
+
+public class FTPServer {
+    public static void main(String[] args) {
+        try (ServerSocket serverSocket = new ServerSocket(1024)) {
+            System.out.println("ServerSocket generated on port 1024...");
+            try (Socket client = serverSocket.accept()) {
+                System.out.println("Client connected: " + client.getInetAddress());
+
+                BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+                PrintStream out = new PrintStream(client.getOutputStream());
+
+                System.out.print("Enter a file name to send: ");
+                String filename = consoleReader.readLine();
+                File file = new File(filename);
+
+                if (file.exists()) {
+                    try (BufferedReader fileReader = new BufferedReader(new FileReader(file))) {
+                        String line;
+                        while ((line = fileReader.readLine()) != null) {
+                            out.println(line);
+                        }
+                    }
+                    System.out.println("File transfer complete.");
+                } else {
+                    out.println("ERROR: File not found");
+                    System.out.println("File not found: " + filename);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Server Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
