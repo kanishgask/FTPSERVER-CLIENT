@@ -1,0 +1,30 @@
+import java.io.*;
+import java.net.*;
+
+public class FTPClient {
+    public static void main(String[] args) {
+        try {
+            InetAddress serverAddr = InetAddress.getLocalHost();
+            try (Socket socket = new Socket(serverAddr, 1024)) {
+                System.out.println("Connected to server: " + serverAddr);
+
+                BufferedReader consoleReader = new BufferedReader(new InputStreamReader(System.in));
+                System.out.print("Enter a new file name to save received data: ");
+                String localFilename = consoleReader.readLine();
+
+                try (PrintWriter fileWriter = new PrintWriter(new FileWriter(localFilename));
+                     BufferedReader in = new BufferedReader(new InputStreamReader(socket.getInputStream()))) {
+
+                    String line;
+                    while ((line = in.readLine()) != null) {
+                        fileWriter.println(line);
+                    }
+                    System.out.println("File received and saved as: " + localFilename);
+                }
+            }
+        } catch (IOException e) {
+            System.err.println("Client Error: " + e.getMessage());
+            e.printStackTrace();
+        }
+    }
+}
